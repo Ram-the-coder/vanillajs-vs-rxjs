@@ -57,6 +57,7 @@ function createBoard() {
 
 /* Main Logic Starts Here */
 function handleCellClick(i, j) {
+  // If cell has been opened already do not do anything
   if(openSquares.has(toString(i,j))) return;
 
   if(isMine(grid[i][j])) {
@@ -69,6 +70,8 @@ function handleCellClick(i, j) {
     return;
   }
 
+  // This is a normal square with a number
+  // Add this is openedSquares and reveal it
   openSquares.add(toString(i,j))
   reveal(i, j);
 }
@@ -77,6 +80,7 @@ function handleMineClick(i, j) {
     openSquares.add(toString(i, j));
     reveal(i, j)
 
+    // Reveal mines one by one
     let count = 1;
     for(let x=0; x<5; ++x) {
       for(let y=0; y<5; ++y) {
@@ -84,10 +88,13 @@ function handleMineClick(i, j) {
         window.setTimeout(() => reveal(x, y), (count++)*200);
       }
     }
+
+    // Reveal all the other non-mine squares
     window.setTimeout(revealAll, (count++)*200);
 }
 
 function handleEmptySquareClick(i, j) {
+  // Use BFS to open and reveal all adjacent squares
   openSquares.add(toString(i, j));
   let queue = [{i,j}];
   while(queue.length > 0) {

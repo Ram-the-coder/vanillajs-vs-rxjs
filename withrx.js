@@ -63,26 +63,26 @@ function Cell(i, j, content) {
 
   /* Main Logic Starts Here */
   let cellClick$ = fromEvent(cell, 'click').pipe(
-    take(1),
-    takeUntil(openedMine$)
+    take(1), // once this cell is opened, don't bother listening to any more clicks on it
+    takeUntil(openedMine$) // once a mine is clicked, don't bother listening to any more clicks on this cell
   );
 
-  cellClick$.subscribe(openCell);
+  cellClick$.subscribe(openCell); // call openCell when cell has been clicked
 
   openedEmptySquare$.pipe(
-    takeUntil(merge(cellClick$, openedMine$), true),
-    filter(isNeigbouringCell),
-    take(1)
+    takeUntil(merge(cellClick$, openedMine$), true), // take until this cell has not been clicked (firs time click is ok) or a mine has not been opened
+    filter(isNeigbouringCell), // this cell is interested only if the empty square that was opened is adjacent to it
+    take(1) // need only one adjacent empty cell to open to trigger this cell to open
   ).subscribe(openCell);
 
   function openCell() {
-    if(isMine(content))  openedMine$.next({i, j});
-    else if(isEmptySquare(content)) openedEmptySquare$.next({i, j});
-    reveal();
+    if(isMine(content))  openedMine$.next({i, j}); // broadcast that a mine has been opened at (i, j)
+    else if(isEmptySquare(content)) openedEmptySquare$.next({i, j});  // broadcast that an empty cell been opened at (i, j)
+    reveal(); // open this cell
   }
 
   openedMine$.pipe(
-    takeUntil(cellClick$)
+    takeUntil(cellClick$) // listen until this cell has not been clicked yet
   ).subscribe(handleMineOpened)
 
 
